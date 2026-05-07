@@ -1,0 +1,31 @@
+{
+  "id": "3bf94298-f727-4a42-b023-a8d3e3576ad1",
+  "name": "Aardvark Labs Agent Demo",
+  "publisher": "Aardvark Labs",
+  "brief": "Aardvark Labs Customizations.",
+  "description": "Customizations provided by Aardvark Labs",
+  "version": "1.25.0.0",
+  "privacyStatement": "http://aardvarklabs.blog",
+  "EULA": "http://aardvarklabs.blog",
+  "help": "http://aardvarklabs.blog",
+  "contextSensitiveHelpUrl": "http://aardvarklabs.blog",
+  "url": "http://aardvarklabs.blog",
+  "logo": "./AardvarkLabsIcon.jpg",
+  "supportedLocales": ["en-US"],
+  "features": [ "TranslationFile", "GenerateCaptions" ],
+  "dependencies": [],
+  "screenshots": [],
+  "resourceFolders": ["Resources"],
+  "platform": "25.0.0.0",
+  "application": "25.0.0.0",
+  "resourceExposurePolicy": {
+    "allowDebugging": true, 
+    "allowDownloadingSource": true, 
+    "includeSourceInSymbolFile": false
+  },
+  "target": "Cloud",
+  "idRanges": [
+    {"from": 60000, "to": 69999}
+  ],
+  "runtime":"16.0"
+}
