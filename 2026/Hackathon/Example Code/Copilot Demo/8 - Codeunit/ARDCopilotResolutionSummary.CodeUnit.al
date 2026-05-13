@@ -73,8 +73,8 @@ codeunit 50006 ARD_CopilotResolutionSummary
         EntityTextModuleInfo: ModuleInfo;
     begin
         // Set up Azure OpenAI authorization using isolated storage values
-        //AzureOpenAI.SetManagedResourceAuthorization(Enum::"AOAI Model Type"::"Chat Completions", IsolatedStorageWrapper.GetAOAIAccountName(), IsolatedStorageWrapper.GetSecretKey(), AoaiDeployments.GetGPT41Latest());
         AzureOpenAI.SetManagedResourceAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AoaiDeployments.GetGPT41Latest());
+
 
         // Set the Copilot capability for customer detail processing
         AzureOpenAI.SetCopilotCapability(Enum::"Copilot Capability"::"Customer Detail");

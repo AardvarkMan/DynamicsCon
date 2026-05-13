@@ -86,8 +86,8 @@ var
     EntityTextModuleInfo: ModuleInfo;
 begin
     // Set up Azure OpenAI authorization using isolated storage values
-    //AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", IsolatedStorageWrapper.GetEndpoint(), IsolatedStorageWrapper.GetDeployment(), IsolatedStorageWrapper.GetSecretKey());
     AzureOpenAI.SetManagedResourceAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AoaiDeployments.GetGPT41Latest());
+
 
     // Set the Copilot capability for customer detail processing
     AzureOpenAI.SetCopilotCapability(Enum::"Copilot Capability"::"Customer Detail");

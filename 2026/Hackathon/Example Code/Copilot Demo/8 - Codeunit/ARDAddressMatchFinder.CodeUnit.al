@@ -68,8 +68,8 @@ codeunit 50005 ARD_AddressMatchFinder
          IsolatedStorageWrapper.GetEndpoint(), IsolatedStorageWrapper.GetDeployment(), IsolatedStorageWrapper.GetSecretKey());*/
 
         // Set up Azure OpenAI authorization using isolated storage values, use the Managed Resource Authorization
-        //AzureOpenAI.SetManagedResourceAuthorization(Enum::"AOAI Model Type"::"Chat Completions", IsolatedStorageWrapper.GetAOAIAccountName(), IsolatedStorageWrapper.GetSecretKey(), AoaiDeployments.GetGPT41Latest());
         AzureOpenAI.SetManagedResourceAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AoaiDeployments.GetGPT41Latest());
+
 
 
         // Set the Copilot capability for customer detail processing

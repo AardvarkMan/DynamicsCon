@@ -1,56 +1,78 @@
-codeunit 50004 ARDCopilotItemRecommendations
+codeunit 50001 ARD_CopilotJob
 {
     trigger OnRun()
     begin
-        GenerateItemRecommendations();
+        GenerateAddressProposal();
     end;
 
-
+    /// <summary>
+    /// Sets the user prompt to be used for generating address proposals or chat completions.
+    /// </summary>
+    /// <param name="InputUserPrompt">The text input provided by the user.</param>
+    /// <remarks>
+    /// This procedure assigns the provided user input to the `UserPrompt` variable, 
+    /// which is later used in other procedures such as `GenerateAddressProposal` or `Chat`.
+    /// </remarks>
     procedure SetUserPrompt(InputUserPrompt: Text)
     begin
         UserPrompt := InputUserPrompt;
     end;
 
-    procedure SetItemDescriptions(InputItemDescriptions: JsonArray)
+    /// <summary>
+    /// Retrieves the dictionary containing address details generated from the user prompt.
+    /// </summary>
+    /// <returns>
+    /// A dictionary of key-value pairs representing address details.
+    /// </returns>
+    procedure GetResult(): Dictionary of [Text, Text]
     begin
-        ItemDescriptions := InputItemDescriptions;
+        exit(AddressDict);
     end;
 
-    procedure GetResult(): Text
-    begin
-        exit(CompletionResult);
-    end;
-
+    /// <summary>
+    /// Retrieves the completion result generated from the address proposal or chat process.
+    /// </summary>
+    /// <returns>
+    /// A text value representing the completion result.
+    /// </returns>
     internal procedure GetCompletionResult(): Text
     begin
         exit(CompletionResult);
     end;
 
     /// <summary>
-    /// Generates item recommendations by preparing item descriptions and invoking the Chat procedure.
-    /// It constructs a JSON object containing the user prompt and item descriptions, then sends it to Azure OpenAI.
-    /// The result is stored in CompletionResult.
+    /// Generates an address proposal by processing a user prompt and parsing the response.
+    /// The response is expected to be in JSON format, and the method extracts key-value pairs
+    /// to populate the AddressDict dictionary. If a 'formatted' address is found, it is returned
+    /// as the completion result; otherwise, a default message is returned.
     /// </summary>
-    local procedure GenerateItemRecommendations()
+    /// <remarks>
+    /// This method uses a chat function to generate a response based on a system prompt and user input.
+    /// The response is parsed as JSON, and keys are added to the AddressDict dictionary in lowercase.
+    /// </remarks>
+    /// <param name="GetSystemPrompt">A function that provides the system prompt for the chat.</param>
+    /// <param name="UserPrompt">The user-provided input for generating the address proposal.</param>
+    /// <returns>
+    /// A formatted address if available in the response, or a default message indicating no formatted address was found.
+    /// </returns>
+    local procedure GenerateAddressProposal()
     var
-        JObject: JsonObject;
         JResTok: JsonToken;
         TmpText: Text;
         JsonKey: Text;
     begin
-        CompletionResult := ''; // Clear previous result
+        CompletionResult := '';
+        TmpText := Chat(GetSystemPrompt(), UserPrompt);
 
-        // Add the user prompt to the item descriptions array
-        ItemDescriptions.Add(UserPrompt);
+        JResTok.ReadFrom(TmpText);
+        foreach JsonKey in JResTok.AsObject().Keys do begin
+            AddressDict.add(JsonKey.ToLower(), JResTok.AsObject().GetText(JsonKey));
+        end;
 
-        // Add the item descriptions array to a JSON object under the key 'Descriptions'
-        JObject.Add('Descriptions', ItemDescriptions);
-
-        // Serialize the JSON object to text
-        JObject.WriteTo(TmpText);
-
-        // Call the Chat procedure with the system prompt and the serialized descriptions
-        CompletionResult := Chat(GetSystemPrompt(), TmpText);
+        if AddressDict.ContainsKey('formatted') then
+            CompletionResult := AddressDict.Get('formatted')
+        else
+            CompletionResult := 'No formatted address found.';
     end;
 
     /// <summary>
@@ -78,7 +100,6 @@ codeunit 50004 ARDCopilotItemRecommendations
     begin
         // Set up Azure OpenAI authorization using isolated storage values
         AzureOpenAI.SetManagedResourceAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AoaiDeployments.GetGPT41Latest());
-
 
         // Set the Copilot capability for customer detail processing
         AzureOpenAI.SetCopilotCapability(Enum::"Copilot Capability"::"Customer Detail");
@@ -108,15 +129,17 @@ codeunit 50004 ARDCopilotItemRecommendations
     local procedure GetSystemPrompt() SystemPrompt: Text
     begin
         // Define the system prompt that instructs the AI on how to process the user's input
-        SystemPrompt := @'The user will provide details on several items they are purchasing.
-        Your task is to identify keywords the describe the items so that the user can easily find similar items in the future. The output should be a list of words that describe the items based on the descriptions provided.
-        The descriptions should be concise and relevant to the items avoiding product names or specific brands. The descriptions should be common to all items, not specific to any one item. Results should be ordered by relevance to all items provided.
-        You will return a JSON Object with an array named "Keywords".
-        The response should be in JSON format.';
+        SystemPrompt := @'The user will provide details about a customer address. Your task is to find the best address for that customer.
+        The output should be a JSON object with the following fields:
+        addressline1, addressline2, city, state, country, postalCode, phone, email, formatted.
+        Do not use line breaks or other special characters in addressline1, addressline2, city, state, country, postalCode, phone, email.
+        Format the State as a two-letter abbreviation.
+        Skip empty nodes.';
     end;
 
     var
+        AddressDict: Dictionary of [Text, Text];
         UserPrompt: Text;
-        ItemDescriptions: JsonArray;
         CompletionResult: Text;
+
 }

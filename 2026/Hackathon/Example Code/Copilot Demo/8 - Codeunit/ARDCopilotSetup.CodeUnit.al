@@ -4,7 +4,7 @@ codeunit 50000 ARD_CopilotSetup
     InherentEntitlements = X;
     InherentPermissions = X;
     Access = Internal;
-
+ 
     trigger OnInstallAppPerDatabase()
     begin
         RegisterCapability();
@@ -22,8 +22,6 @@ codeunit 50000 ARD_CopilotSetup
             if not CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"Customer Detail") then
                 CopilotCapability.RegisterCapability(
                 Enum::"Copilot Capability"::"Customer Detail",
-                Enum::"Copilot Availability"::Preview,
-                "Copilot Billing Type"::"Microsoft Billed", 
-                LearnMoreUrlTxt);
+                Enum::"Copilot Availability"::Preview, LearnMoreUrlTxt);
     end;
 }
